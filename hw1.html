@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>cs640 pa1</title>
+
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/project.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+</head>
+<body>
+<header class="project_page">
+
+
+    <div class = "project_header">
+        <a class="nav_icon" id="home_icon" href="index.html">
+        </a>
+
+        <a class="nav_icon previous_icon" href="cs640.html"></a>
+        <a class="nav_icon next_icon" href=""></a>
+    </div>
+
+
+</header>
+
+<div class="project_detail">
+    <div class="container">
+        <div class="project_title">
+            PA2
+        </div>
+        <div class="project_subtitle">
+            News Image Classification
+        </div>
+
+
+        <div class="project_meta col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
+            <div class="big_box no-padding-left no-padding-right">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <h5>TEAM MEMBER</h5>
+                    <p>Qian Xiang</p>
+                    <p>Tong Li</p>
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <h5>DATE</h5>
+                    <p>03/20/2019 - 04/06/2019</p>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <h5>SKILLS</h5>
+                    <p>Python</p>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <h5>TOOLS</h5>
+                    <p>Tensorflow</p>
+                    <p>Jupyter Notebook</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="project_content col-xs-12 col-sm-12 col-md-8 col-md-offset-2">
+            <h2>Identify your problem</h2>
+            <div class="regular">
+                <p>Give details about why is it a valuable topic and then describe the problem you are going to solve in a precise way.</p>
+                <p>
+
+                </p>
+            </div>
+
+            <h2>Background survey</h2>
+            <div class="regular">
+                <h3>1. Transfer learning with Inception-V3 trained on ImageNet</h3>
+                <div>
+                    Transfer learning is a machine learning method which utilizes a pre-trained neural network.<br>
+                    Modern image recognition models have millions of parameters. Training then from scratch requires a lot of labeled training data
+                    and a lot of computing power (hundreds of GPU-hours or more). So In transfer learning, when you build a new model to classify your original dataset,
+                    you reuse the feature extraction part and re-train the classification part with your dataset. Since you don't have to train the feature extraction
+                    part(which is the most complex part of the model), you can train the model with less computational resources and training time.
+                    Though it's not as good as training the full model, this is surprisingly effective for many applications, works with moderate amounts
+                    of training data(thousands, not millions of labeled images). and can be run in a short time ona laptop without a GPU.<br>
+                    The image recognition model Inception-V3 consists of two parts:<br>
+                    (1) Feature extraction part with a convolutional neural network.<br>
+                    (2) Classification part with fully-connected and softmax layers.<br>
+                    The reason why we choose inception-v3 as one of our method is that the pre-trained Inception-v3 model
+                    achieves state-of-the-art accuracy for recognizing general objects with 1000 classes.The model extracts
+                    general features from input images in the first part and classifies them based on those features in the
+                    second part.
+
+                </div>
+                
+            </div>
+
+            <h2>Reproducing the baseline</h2>
+            <div class = "regular">
+                <h3>1. Inception V3 baseline</h3>
+                <h4>(1) Constructing dataset for retraining</h4>
+                <p>
+                    Use matlab to prepare files with correct labels for each image. Name the files as [image_file_name.jpg.txt], this file is used to form ground truth for the images.<br>
+                    <img src="images/imageLabel.jpg"><br>
+                    The inside of these file should be the labels' name. Violence is a little special here, it's not defined as 0 or 1, so we put the decimal value as it's label.<br>
+                    <img src="images/innerLabel.jpg"><br>
+                    If there so no label on the image, the content is just 0.<br>
+                    <img src="images/innerLabel0.jpg"><br>
+                    Also, we need a txt file contains all the labels' name.We <br>
+                    <img src="images/allLabels.jpg"><br>
+                </p>
+                <h4>(2) Creating ground_truth vectors</h4>
+                <p>
+                    Edit get_random_cached_bottlenecks() method: This method creates the ground_truth vectors containing the correct labels of each returned image. <br>
+                    Originally it simply created a vector of zeroes, and then put a 1.0 in a position of the correct label.<br>
+                    For multi-label classification. We need to load all the correct labels for the given image from it's image label file.
+                    First, we need to get a path to the file with correct labels, read all lines equals to labels form file and save them into an array.<br>
+                    Then, we initialize the ground_truth vector with zeroes and indicate the correct labels in the ground_truth vector with 1.0<br>
+                    'violence' is a little special here, we load it's value last in decimal form.<br>
+                    <img src="images/groundtruth.jpg">
+                </p>
+                <h4>(3) Modifying training</h4>
+                <p>
+                    Edit add_final_training_ops(): This method originally added a new softmax and fully-connected layer for training.
+                    The softmax function squashes all values of a vector into a range of [0,1] summing together to 1. But for multi-label case,
+                    we would like our resulting class probabilities to be able to express that an image of a fire and people belongs to people with 90%
+                    probability and to class protest with 50% probability.<br>
+                    So we changed softmax into sigmoid function.
+                </p>
+                <h4>(4) Modifying evaluation</h4>
+                <p>
+                    Edit add_evaluation_step(): This method get the indices with the highest values and compare them, while knowing that because
+                    only one label can be correct the ground_truth_tensor contains only 1 in each row.<br>
+                    To adapt this approach to our multi-label case we simply replace the argmax() with round() which turns the probabilities into 0 and 1.
+                    Then we compare the result_tensor with ground_truth_tensor already containing only the 0 and 1:<br>
+                    <img src="images/evaluation.jpg"><br>
+                </p>
+            </div>
+
+            <h2>Improvement</h2>
+            <div class = "regular">
+                <h3>1. Inception-V3</h3>
+                A common way of improving the results of image training is by deforming, cropping, or brightening the training inputs in random ways.
+                This has the advantage of expanding the effective size of the training data thanks to all the possible variations of the same images,
+                and tends to help the network learn to cope with all the distortions that will occur in real-life uses of the classifier.<br>
+                The biggest disadvantage of enabling these distortions in our script is that the bottleneck caching is no longer useful,
+                since input images are never reused exactly. This means the training process takes a lot longer(many hours).<br>
+                So in order to improve the performance, We randomly flipped half of the training images horizontally to see the accuracy. This took more than 12 hours running
+                on my laptop. Also, we tried to add training steps from 1,000 to 10,000.
+                Here is a form indicating the performance:
+
+            </div>
+
+            <h2>Credits and Bibliography</h2>
+            <div class="regular">
+                1. https://codelabs.developers.google.com/codelabs/cpb102-txf-learning/index.html#0
+                2. https://www.tensorflow.org/hub/tutorials/image_retraining
+                3. https://github.com/tensorflow/hub/raw/master/examples/image_retraining/retrain.py
+                4. https://towardsdatascience.com/multi-label-image-classification-with-inception-net-cbb2ee538e30
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
